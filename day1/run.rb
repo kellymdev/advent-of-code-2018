@@ -1040,5 +1040,10 @@ INPUT
 
 starting_frequency = 0
 
-calculator = FrequencyCalculator.new(starting_frequency, input)
+# Part One
+calculator = FrequencyCalculator.new(starting_frequency, input, calibrate: false)
 calculator.calculate
+
+# Part Two
+calibration_calculator = FrequencyCalculator.new(starting_frequency, input, calibrate: true)
+calibration_calculator.calculate
