@@ -1027,4 +1027,8 @@ INPUT
 
 # Part One
 calculator = CalculateTimeAsleep.new(input)
-calculator.calculate
+calculator.calculate_guard_most_asleep
+
+# Part Two
+calculator2 = CalculateTimeAsleep.new(input)
+calculator2.calculate_most_consistent_guard

@@ -17,16 +17,26 @@ class CalculateTimeAsleep
     @guards = {}
   end
 
-  def calculate
-    sort_guard_log
-
-    record_guard_movements
+  def calculate_guard_most_asleep
+    prepare_data
 
     guard = find_sleepiest_guard
     time = calculate_time_most_asleep(guard)
-    multiplied_result = multiply_result(guard, time)
+    multiplied_result = multiply_result(guard[:number], time[:time])
 
-    display_guard_and_sleep_details(guard, time, multiplied_result)
+    display_guard_and_sleep_details(guard, time[:time], multiplied_result)
+  end
+
+  def calculate_most_consistent_guard
+    prepare_data
+
+    frequencies = calculate_guard_sleep_frequencies
+
+    guard_frequency = find_most_consistent_guard_from_frequencies(frequencies)
+
+    multiplied_result = multiply_result(guard_frequency.first, guard_frequency.last[:time])
+
+    display_consistent_guard_details(guard_frequency.first, guard_frequency.last[:time], multiplied_result)
   end
 
   private
@@ -42,6 +52,11 @@ class CalculateTimeAsleep
         log: matches[2]
       }
     end
+  end
+
+  def prepare_data
+    sort_guard_log
+    record_guard_movements
   end
 
   def sort_guard_log
@@ -98,6 +113,16 @@ class CalculateTimeAsleep
     }.merge!(guard.last)
   end
 
+  def calculate_guard_sleep_frequencies
+    frequencies = {}
+
+    guards.each do |number, guard_details|
+      frequencies[number] = calculate_time_most_asleep(guard_details)
+    end
+
+    frequencies
+  end
+
   def calculate_time_most_asleep(guard)
     grouped_logs = guard[:raw_logs].group_by { |log| log[:date_time].match(DATE_TIME_REGEX)[1] }
 
@@ -106,8 +131,7 @@ class CalculateTimeAsleep
     end
 
     frequencies = calculate_sleep_frequencies(daily_logs)
-    most_frequent = frequencies.max_by { |frequency| frequency[:frequency] }
-    most_frequent[:time]
+    frequencies.max_by { |frequency| frequency[:frequency] }
   end
 
   def plot_log_for_day(logs)
@@ -143,22 +167,41 @@ class CalculateTimeAsleep
   def calculate_sleep_frequencies(daily_logs)
     transposed = daily_logs.transpose
 
-    transposed.map.with_index do |time_log, time|
-      {
-        time: time,
-        frequency: time_log.count(ASLEEP_MARKER)
-      }
+    if daily_logs.empty?
+      [
+        {
+          time: 0,
+          frequency: 0
+        }
+      ]
+    else
+      transposed.map.with_index do |time_log, time|
+        {
+          time: time,
+          frequency: time_log.count(ASLEEP_MARKER)
+        }
+      end
     end
   end
 
-  def multiply_result(guard, time)
-    guard[:number].to_i * time
+  def multiply_result(guard_number, time)
+    guard_number.to_i * time
+  end
+
+  def find_most_consistent_guard_from_frequencies(frequencies)
+    frequencies.max_by { |guard_number, frequency| frequency[:frequency] }
   end
 
   def display_guard_and_sleep_details(guard, time, multiplied_result)
     puts "Most asleep guard: #{guard[:number]}"
     puts "Minutes asleep: #{guard[:total_time_asleep]}"
     puts "Most asleep minute: #{time}"
+    puts "Multiplied together: #{multiplied_result}"
+  end
+
+  def display_consistent_guard_details(guard_number, time, multiplied_result)
+    puts "Most consistent guard: #{guard_number}"
+    puts "Most consistent minute: #{time}"
     puts "Multiplied together: #{multiplied_result}"
   end
 end
