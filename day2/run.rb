@@ -1,4 +1,5 @@
 require_relative 'calculate_checksum'
+require_relative 'find_boxes'
 
 # input = <<-INPUT
 # abcdef
@@ -8,6 +9,16 @@ require_relative 'calculate_checksum'
 # aabcdd
 # abcdee
 # ababab
+# INPUT
+
+# input = <<-INPUT
+# abcde
+# fghij
+# klmno
+# pqrst
+# fguij
+# axcye
+# wvxyz
 # INPUT
 
 input = <<-INPUT
@@ -266,3 +277,7 @@ INPUT
 # Part One
 calculator = CalculateChecksum.new(input)
 calculator.calculate
+
+# Part Two
+boxes = FindBoxes.new(input)
+boxes.find_boxes
