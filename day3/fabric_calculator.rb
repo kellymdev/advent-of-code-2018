@@ -16,15 +16,23 @@ class FabricCalculator
   end
 
   def calculate
-    plans.each do |plan|
-      plot_claim(plan)
-    end
+    plot_claims
 
     display_claim_grid if display_grid
 
     claims_overlapping = calculate_number_of_claims_overlapping
 
     display_claims_overlapping(claims_overlapping)
+  end
+
+  def find_non_overlapping_claim
+    plot_claims
+
+    possible_claims = find_possible_claims
+
+    claim = find_full_claim(possible_claims)
+
+    display_valid_claim(claim)
   end
 
   private
@@ -36,7 +44,7 @@ class FabricCalculator
       matches = instruction.match(INSTRUCTION_REGEX)
 
       claim = {
-        claim_number: matches[1],
+        claim_number: matches[1].to_i,
         left_edge_offset: matches[2].to_i,
         top_edge_offset: matches[3].to_i,
         width: matches[4].to_i,
@@ -65,6 +73,12 @@ class FabricCalculator
 
   def create_fabric
     Array.new(max_height) { Array.new(max_width) { BLANK_SQUARE } }
+  end
+
+  def plot_claims
+    plans.each do |plan|
+      plot_claim(plan)
+    end
   end
 
   def plot_claim(claim)
@@ -98,6 +112,45 @@ class FabricCalculator
     end.reduce(:+)
   end
 
+  def find_possible_claims
+    fabric.flat_map do |row|
+      row.select do |cell|
+        single_claim_square?(cell)
+      end
+    end
+  end
+
+  def single_claim_square?(cell)
+    cell != BLANK_SQUARE && cell != MULTIPLE_CLAIM_SQUARE
+  end
+
+  def find_full_claim(possible_claims)
+    possible_claims.each do |claim_number|
+      claim_details = plans.select do |claim|
+        claim[:claim_number] == claim_number
+      end.first
+
+      if valid_claim?(claim_details)
+        return claim_number
+      end
+    end
+  end
+
+  def valid_claim?(claim_details)
+    claim_details[:height].times do |y_index|
+      claim_details[:width].times do |x_index|
+        y_coordinate = claim_details[:top_edge_offset] + y_index
+        x_coordinate = claim_details[:left_edge_offset] + x_index
+
+        if fabric[y_coordinate][x_coordinate] != claim_details[:claim_number]
+          return false
+        end
+      end
+    end
+
+    true
+  end
+
   def display_claim_grid
     fabric.each do |row|
       row.each do |cell|
@@ -110,5 +163,9 @@ class FabricCalculator
 
   def display_claims_overlapping(claims_overlapping)
     puts "Claims overlapping: #{claims_overlapping}"
+  end
+
+  def display_valid_claim(claim_number)
+    puts "Non-overlapping claim: #{claim_number}"
   end
 end

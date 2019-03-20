@@ -1353,3 +1353,7 @@ INPUT
 # Part One
 calculator = FabricCalculator.new(input, display_grid: false)
 calculator.calculate
+
+# Part Two
+calculator2 = FabricCalculator.new(input, display_grid: false)
+calculator2.find_non_overlapping_claim
