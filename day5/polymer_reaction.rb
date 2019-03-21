@@ -17,6 +17,14 @@ class PolymerReaction
     display_polymer_size
   end
 
+  def reaction_size
+    while contains_reaction?
+      scan_string_for_reactions
+    end
+
+    polymer.size
+  end
+
   private
 
   def format_polymer(polymer)
@@ -30,7 +38,7 @@ class PolymerReaction
 
       next unless reactive?(unit, comparison)
 
-      display_reaction(unit, comparison)
+      # display_reaction(unit, comparison)
       create_reaction(index)
 
       return
