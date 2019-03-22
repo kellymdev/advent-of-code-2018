@@ -21,6 +21,16 @@ class DeterminePowerLevel
     display_most_powerful_group(most_powerful)
   end
 
+  def find_largest_square
+    calculate_fuel_remaining
+
+    calculate_large_fuel_cell_group_powers
+
+    largest_square = find_most_powerful_fuel_cell_group
+
+    display_largest_square(largest_square)
+  end
+
   private
 
   def create_fuel_grid
@@ -57,18 +67,19 @@ class DeterminePowerLevel
     value.to_s.chars[-3].to_i
   end
 
-  def calculate_fuel_cell_group_powers
+  def calculate_fuel_cell_group_powers(group_size = FUEL_CELL_GROUP_SIZE)
     fuel_grid.each.with_index do |row, y_value|
-      next if y_value > fuel_grid_boundary_offset
+      next if y_value > fuel_grid_boundary_offset(group_size)
 
       row.each.with_index do |cell, x_value|
-        next if x_value > fuel_grid_boundary_offset
+        next if x_value > fuel_grid_boundary_offset(group_size)
 
-        total_power = calculate_group_power(x_value, y_value)
+        total_power = calculate_group_power(x_value, y_value, group_size)
 
         group = {
           x_coordinate: x_value + 1,
           y_coordinate: y_value + 1,
+          group_size: group_size,
           total_power: total_power
         }
 
@@ -77,11 +88,19 @@ class DeterminePowerLevel
     end
   end
 
-  def calculate_group_power(x_value, y_value)
+  def calculate_large_fuel_cell_group_powers
+    (FUEL_CELL_GROUP_SIZE..fuel_grid.size).each do |group_size|
+      display_group_size(group_size)
+
+      calculate_fuel_cell_group_powers(group_size)
+    end
+  end
+
+  def calculate_group_power(x_value, y_value, group_size)
     power = 0
 
-    FUEL_CELL_GROUP_SIZE.times do |y_index|
-      FUEL_CELL_GROUP_SIZE.times do |x_index|
+    group_size.times do |y_index|
+      group_size.times do |x_index|
         power += fuel_grid[y_value + y_index][x_value + x_index]
       end
     end
@@ -89,8 +108,8 @@ class DeterminePowerLevel
     power
   end
 
-  def fuel_grid_boundary_offset
-    @boundary_offset ||= fuel_grid.size - FUEL_CELL_GROUP_SIZE - 1
+  def fuel_grid_boundary_offset(group_size)
+    fuel_grid.size - group_size - 1
   end
 
   def find_most_powerful_fuel_cell_group
@@ -100,5 +119,15 @@ class DeterminePowerLevel
   def display_most_powerful_group(fuel_cell_group)
     puts "Total largest power: #{fuel_cell_group[:total_power]}"
     puts "Coordinates: #{fuel_cell_group[:x_coordinate]},#{fuel_cell_group[:y_coordinate]}"
+  end
+
+  def display_group_size(group_size)
+    puts "Calculating group sizes of: #{group_size}"
+  end
+
+  def display_largest_square(fuel_cell_group)
+    puts "Square with largest power:"
+    puts " - Power: #{fuel_cell[:power]}"
+    puts " - Coordinates: #{fuel_cell[:x_coordinate]},#{fuel_cell[:y_coordinate]},#{fuel_cell_group[:size]}"
   end
 end
