@@ -16,6 +16,8 @@ class MakeHotChocolate
 
       pick_new_current_recipes
     end
+
+    display_scores
   end
 
   private
@@ -41,11 +43,17 @@ class MakeHotChocolate
     current_recipes.each do |elf, recipe_index|
       moves = 1 + recipe_board[recipe_index]
 
-      find_new_recipe(elf, moves)
+      current_recipes[elf] = find_new_recipe(elf, moves)
     end
   end
 
   def find_new_recipe(elf, moves)
-    
+    current_index = current_recipes[elf]
+
+    (current_index += moves) % recipe_board.size
+  end
+
+  def display_scores
+    puts recipe_board[-scores_required..-1].join('')
   end
 end
