@@ -20,7 +20,23 @@ class MakeHotChocolate
     display_scores
   end
 
+  def find_recipe_count
+    while missing_puzzle_input?
+      create_new_recipes
+
+      pick_new_current_recipes
+    end
+
+    recipes = count_recipes
+    display_recipe_count(recipes)
+  end
+
   private
+
+  def missing_puzzle_input?
+    recipe_string = recipe_board.join
+    recipe_string.match(/#{number_of_recipes}/).nil?
+  end
 
   def create_new_recipes
     combined = combine_recipes
@@ -53,7 +69,15 @@ class MakeHotChocolate
     (current_index += moves) % recipe_board.size
   end
 
+  def count_recipes
+    recipe_board.size - number_of_recipes.to_s.size
+  end
+
   def display_scores
     puts recipe_board[-scores_required..-1].join('')
+  end
+
+  def display_recipe_count(recipes)
+    puts "#{recipes} recipes"
   end
 end
