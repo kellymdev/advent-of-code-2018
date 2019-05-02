@@ -7,9 +7,9 @@ class CollectLumber
 
   attr_reader :forest_map, :minutes
 
-  def initialize(map_string)
+  def initialize(map_string, minutes = 10)
     @forest_map = format_map(map_string)
-    @minutes = 10
+    @minutes = minutes
   end
 
   def calculate_resource_value
