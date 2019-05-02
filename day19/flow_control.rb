@@ -6,10 +6,10 @@ class FlowControl
 
   attr_reader :instruction_pointer, :instructions, :registers
 
-  def initialize(instruction_string)
+  def initialize(instruction_string, starting_registers = Array.new(6) { 0 })
     @instruction_pointer = nil
     @instructions = format_instructions(instruction_string)
-    @registers = Array.new(6) { 0 }
+    @registers = starting_registers
   end
 
   def perform_instructions

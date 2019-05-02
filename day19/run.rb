@@ -54,3 +54,7 @@ INPUT
 # Part One
 control = FlowControl.new(input)
 control.perform_instructions
+
+# Part Two
+one = FlowControl.new(input, [1, 0, 0, 0, 0, 0])
+one.perform_instructions
